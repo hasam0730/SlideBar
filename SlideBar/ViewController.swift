@@ -10,111 +10,128 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    @IBOutlet weak var slideView: UIView!
+	@IBOutlet weak var myScrollView: UIScrollView!
+	@IBOutlet weak var slideView: UIView!
     let stringList = ["title1", "title2", "title3", "title4", "title5"]
     let colorsList = [UIColor.yellow, UIColor.red, UIColor.brown, UIColor.green, UIColor.cyan]
-    
+	var centerList = [CGPoint]()
+	var frameList = [CGRect]()
+	let bottomLine = UIView()
+	var containerView: UIView!
+	var isDragging: Bool = false
+	let numberOfItems = 4
+	
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        addItemToView(numberItems: 5, to: slideView)
-
+        addItemToView(numberItems: numberOfItems, to: slideView)
+		setupView(numberOfitems: numberOfItems)
+		
+		print("🎯: \(ScreenSize.width)")
     }
-    
-    @objc func buttonAction(sender: UIButton!) {
-        print("Button tapped")
-    }
-    
+	
     func addItemToView(numberItems: Int, to subview: UIView) {
-        let someView = UIView(frame: UIScreen.main.bounds)
-        someView.backgroundColor = UIColor.brown
-        let widthItem = slideView.bounds.width/CGFloat(numberItems)
-        let heightItem = slideView.bounds.height
-        for i in 0..<5 {
-            let lblTitle = UIButton(frame: CGRect(x: CGFloat(i) * widthItem, y: widthItem, width: widthItem, height: heightItem))
+        containerView = UIView(frame: subview.frame)
+        containerView.backgroundColor = UIColor.brown
+        let widthItem = view.bounds.width/CGFloat(numberItems)
+		let heightItem: CGFloat = 100.0
+        for i in 0..<numberItems {
+            let lblTitle = UIButton(frame: CGRect(x: CGFloat(i) * widthItem, y: 0, width: widthItem, height: subview.frame.size.height))
+			centerList.append(lblTitle.center)
+			frameList.append(lblTitle.frame)
             print("🎅:---\(lblTitle.frame)")
             lblTitle.backgroundColor = colorsList[i]
             lblTitle.tag = i
             
             lblTitle.addTarget(self, action: #selector(self.dosomething(_:)), for: .touchUpInside)
-            someView.isUserInteractionEnabled = true
-            lblTitle.isUserInteractionEnabled = true
-            slideView.isUserInteractionEnabled = true
+			
+            containerView.isUserInteractionEnabled = true
+			
             lblTitle.setTitle(stringList[i], for: .normal)
-            
-            someView.addSubview(lblTitle)
-            
-//            view.addSubview(someView)
-            slideView.insertSubview(someView, at: 0)
-            slideView.bringSubview(toFront: someView)
+			
+            subview.addSubview(lblTitle)
+			
+//			lblTitle.bringSubview(toFront: containerView)
+			
 
             view.isUserInteractionEnabled = true
             print("🧙‍♀️:---\(lblTitle.frame)")
         }
+//		subview.addSubview(containerView)
+		// add bottom line
+		bottomLine.frame = CGRect(x: frameList.first!.minX, y: frameList.first!.maxY-5.0, width: frameList.first!.size.width, height: 5.0)
+		bottomLine.backgroundColor = UIColor.darkText
+		subview.addSubview(bottomLine)
     }
     
     @objc func dosomething(_ sender: UIButton) {
-        print(sender.tag)
+		isDragging = false
+		animateBottomLine(to: sender.tag)
+		myScrollView.scrollRectToVisible(framesScrollList[sender.tag], animated: true)
     }
+	
+	func animateBottomLine(to index: Int) {
+		UIView.animate(withDuration: 0.3) {
+			self.bottomLine.center.x = self.centerList[index].x
+		}
+	}
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
-    let textLabel: UILabel = {
-        let label = UILabel()
-        label.text = "My App"
-        label.textColor = UIColor.white
-        label.font = UIFont.boldSystemFont(ofSize: 25)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    lazy var sendMailButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Send Mail", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIColor(white: 0.5, alpha: 0.5)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = 14
-        button.addTarget(self, action: #selector(handleSendMail), for: .touchUpInside)
-        return button
-    }()
-    
-    let myImage: UIImageView = {
-        let image = UIImageView()
-        image.backgroundColor = UIColor.brown
-        image.translatesAutoresizingMaskIntoConstraints = false
-        image.isUserInteractionEnabled = true    // here activate the interaction needed
-        image.image = UIImage(imageLiteralResourceName: "backgroundSE")
-        return image
-    }()
-    
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        myImage.frame = UIScreen.main.bounds
-//
-//        sendMailButton.frame = CGRect(x: 100, y: 100, width: 100, height: 100)
-//
-//        view.addSubview(myImage)
-//        myImage.addSubview(sendMailButton)
-//        myImage.addSubview(textLabel)
-//
-////        setupLayouts()
-//
-//    }
-    
-    func setupLayouts() {
-        
-    }
-    
-    @objc func handleSendMail() {
-        print("Mail Sended")
-    }
+	
+	var framesScrollList = [CGRect]()
+	//  Converted to Swift 4 by Swiftify v4.1.6751 - https://objectivec2swift.com/
+	func setupView(numberOfitems: Int) {
+		myScrollView.delegate = self
+		myScrollView.bounces = false
+		let screenSize: CGSize = UIScreen.main.bounds.size
+		var xCoodinate: Int = 0
+		for i in 0..<numberOfitems {
+			//
+			let img = UIImage(named: "\(i + 1)")
+			//
+			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height-200))
+			imgv.isUserInteractionEnabled = true
+			framesScrollList.append(imgv.frame)
+			imgv.image = img
+			//
+			myScrollView.addSubview(imgv)
+			xCoodinate += Int(screenSize.width)
+		}
+		//
+		myScrollView.isPagingEnabled = true
+		myScrollView.isScrollEnabled = true
+		myScrollView.contentSize = CGSize(width: CGFloat(xCoodinate), height: screenSize.height-200)
+		//
+		myScrollView.isUserInteractionEnabled = true
+	}
+	
+	func dosomethinsg(bien: CGFloat) {
+		if isDragging == true {
+			bottomLine.frame.origin.x = bien
+		}
+	}
+}
 
+extension ViewController: UIScrollViewDelegate {
+	
+	func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+		isDragging = true
+		print("😃 scrollViewWillBeginDecelerating \(scrollView.contentOffset)")
+	}
+	
+	func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+		isDragging = true
+		print("😃 scrollViewWillBeginDragging \(scrollView.contentOffset)")
+	}
+	
+	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		print("😃 scrollViewDidScroll \(scrollView.contentOffset.x/8)")
+		dosomethinsg(bien: scrollView.contentOffset.x/CGFloat(numberOfItems))
+	}
 }
 
 struct ScreenSize {
