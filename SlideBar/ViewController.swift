@@ -14,25 +14,20 @@ class ViewController: UIViewController {
     let stringList = ["title1", "title2", "title3", "title4", "title5"]
     let colorsList = [UIColor.yellow, UIColor.red, UIColor.brown, UIColor.green, UIColor.cyan]
     
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        // Do any additional setup after loading the view, typically from a nib.
-//        addItemToView(numberItems: 5, to: slideView)
-//
-//        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-//        button.backgroundColor = .green
-//        button.setTitle("Test Button", for: .normal)
-//        button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-//
-//        self.view.addSubview(button)
-//
-//    }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        addItemToView(numberItems: 5, to: slideView)
+
+    }
     
     @objc func buttonAction(sender: UIButton!) {
         print("Button tapped")
     }
     
     func addItemToView(numberItems: Int, to subview: UIView) {
+        let someView = UIView(frame: UIScreen.main.bounds)
+        someView.backgroundColor = UIColor.brown
         let widthItem = slideView.bounds.width/CGFloat(numberItems)
         let heightItem = slideView.bounds.height
         for i in 0..<5 {
@@ -42,11 +37,18 @@ class ViewController: UIViewController {
             lblTitle.tag = i
             
             lblTitle.addTarget(self, action: #selector(self.dosomething(_:)), for: .touchUpInside)
-            subview.isUserInteractionEnabled = true
+            someView.isUserInteractionEnabled = true
+            lblTitle.isUserInteractionEnabled = true
+            slideView.isUserInteractionEnabled = true
             lblTitle.setTitle(stringList[i], for: .normal)
             
-            subview.addSubview(lblTitle)
+            someView.addSubview(lblTitle)
             
+//            view.addSubview(someView)
+            slideView.insertSubview(someView, at: 0)
+            slideView.bringSubview(toFront: someView)
+
+            view.isUserInteractionEnabled = true
             print("🧙‍♀️:---\(lblTitle.frame)")
         }
     }
@@ -54,7 +56,6 @@ class ViewController: UIViewController {
     @objc func dosomething(_ sender: UIButton) {
         print(sender.tag)
     }
-    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -91,20 +92,20 @@ class ViewController: UIViewController {
         return image
     }()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        myImage.frame = UIScreen.main.bounds
-
-        sendMailButton.frame = CGRect(x: 100, y: 100, width: 100, height: 100)
-
-        view.addSubview(myImage)
-        myImage.addSubview(sendMailButton)
-        myImage.addSubview(textLabel)
-
-//        setupLayouts()
-
-    }
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        myImage.frame = UIScreen.main.bounds
+//
+//        sendMailButton.frame = CGRect(x: 100, y: 100, width: 100, height: 100)
+//
+//        view.addSubview(myImage)
+//        myImage.addSubview(sendMailButton)
+//        myImage.addSubview(textLabel)
+//
+////        setupLayouts()
+//
+//    }
     
     func setupLayouts() {
         
