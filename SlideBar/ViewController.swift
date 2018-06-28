@@ -28,7 +28,7 @@ class ViewController: UIViewController {
     }
 	
     @IBAction func changeValue(_ sender: SlideBarView) {
-        myScrollView.scrollRectToVisible(framesScrollList[sender.currentBtnIndex], animated: true)
+        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
     }
     
     // MARK: -------------------

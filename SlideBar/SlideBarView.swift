@@ -27,8 +27,7 @@ class SlideBarView: UIControl {
     private var frameList = [CGRect]()
     private let bottomLine = UIView()
     private var isDragging: Bool = false
-    private(set) var currentBtnIndex: Int = 0
-    
+    private(set) var currentIndex: Int = 0
     
     weak var delegate: SlideBarViewDataSource?
 
@@ -80,7 +79,7 @@ class SlideBarView: UIControl {
     }
     
     @objc func didTapSlideBarItem(_ sender: UIButton) {
-        currentBtnIndex = sender.tag
+        currentIndex = sender.tag
         isDragging = false
         animateBottomLine(to: sender.tag)
         sendActions(for: .valueChanged)
