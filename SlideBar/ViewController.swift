@@ -57,7 +57,6 @@ class ViewController: UIViewController {
 		//
 		myScrollView.isUserInteractionEnabled = true
 	}
-
 }
 
 extension ViewController: SlideBarViewDataSource {
