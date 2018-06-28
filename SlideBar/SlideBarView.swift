@@ -52,21 +52,21 @@ class SlideBarView: UIControl {
         self.backgroundColor = UIColor.brown
         let widthItem = self.bounds.width/CGFloat(numberOfItems!)
         
-        for i in 0..<numberOfItems! {
+        for indx in 0..<numberOfItems! {
             colorsList.append(getRandomColor())
             
-            let lblTitle = UIButton(frame: CGRect(x: CGFloat(i) * widthItem, y: 0, width: widthItem, height: self.frame.size.height))
-            centerList.append(lblTitle.center)
-            frameList.append(lblTitle.frame)
+            let button = UIButton(frame: CGRect(x: CGFloat(indx) * widthItem, y: 0, width: widthItem, height: self.frame.size.height))
+            centerList.append(button.center)
+            frameList.append(button.frame)
 
-            lblTitle.backgroundColor = colorsList[i]
-            lblTitle.tag = i
+            button.backgroundColor = colorsList[indx]
+            button.tag = indx
             
-            lblTitle.addTarget(self, action: #selector(self.didTapSlideBarItem(_:)), for: .touchUpInside)
+            button.addTarget(self, action: #selector(self.didTapSlideBarItem(_:)), for: .touchUpInside)
             
-            lblTitle.setTitle(titlesList![i], for: .normal)
+            button.setTitle(titlesList![indx], for: .normal)
             
-            self.addSubview(lblTitle)
+            self.addSubview(button)
         }
         
         // add bottom line

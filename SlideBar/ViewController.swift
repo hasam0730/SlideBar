@@ -70,25 +70,21 @@ extension ViewController: SlideBarViewDataSource {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
         secondSlideBar.moveLine(follow: scrollView)
 	}
 }
+
+
+
+
+
+
+
+
+
+
 
 struct ScreenSize {
     static let width         = UIScreen.main.bounds.size.width
