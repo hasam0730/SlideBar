@@ -24,7 +24,7 @@ class SlideBarView: UIControl {
     
     private var colorsList = [UIColor]()
     private var centerList = [CGPoint]()
-    private var frameList = [CGRect]()
+    private var framesList = [CGRect]()
     private let bottomLine = UIView()
     private var isDragging: Bool = false
     private(set) var currentIndex: Int = 0
@@ -36,8 +36,7 @@ class SlideBarView: UIControl {
         super.init(frame: frame)
     }
     
-    func getRandomColor() -> UIColor {
-        //Generate between 0 to 1
+    private func getRandomColor() -> UIColor {
         let red:CGFloat = CGFloat(drand48())
         let green:CGFloat = CGFloat(drand48())
         let blue:CGFloat = CGFloat(drand48())
@@ -49,50 +48,57 @@ class SlideBarView: UIControl {
         super.init(coder: aDecoder)
     }
     
-    private func setupView() {
+    // setting up views of items
+    private func setupItemView() {
         self.backgroundColor = UIColor.brown
         let widthItem = self.bounds.width/CGFloat(numberOfItems!)
         
         for indx in 0..<numberOfItems! {
             colorsList.append(getRandomColor())
             
-            let button = UIButton(frame: CGRect(x: CGFloat(indx) * widthItem, y: 0, width: widthItem, height: self.frame.size.height))
-            centerList.append(button.center)
-            frameList.append(button.frame)
+            let btn = UIButton(frame: CGRect(x: CGFloat(indx) * widthItem, y: 0, width: widthItem, height: self.frame.size.height))
+            centerList.append(btn.center)
+            framesList.append(btn.frame)
 
-            button.backgroundColor = colorsList[indx]
-            button.tag = indx
+            btn.backgroundColor = colorsList[indx]
+            btn.tag = indx
             
-            button.addTarget(self, action: #selector(self.didTapSlideBarItem(_:)), for: .touchUpInside)
+            btn.addTarget(self, action: #selector(self.didTapSlideBarItem(_:)), for: .touchUpInside)
             
-            button.setTitle(titlesList![indx], for: .normal)
+            btn.setTitle(titlesList![indx], for: .normal)
             
-            self.addSubview(button)
-            btnsList.append(button)
+            self.addSubview(btn)
+            btnsList.append(btn)
         }
         
         // add bottom line
-        bottomLine.frame = CGRect(x: frameList.first!.minX,
-                                  y: frameList.first!.maxY-lineHeight,
-                                  width: frameList.first!.size.width,
+        bottomLine.frame = CGRect(x: framesList.first!.minX,
+                                  y: framesList.first!.maxY-lineHeight,
+                                  width: framesList.first!.size.width,
                                   height: lineHeight)
+        
         bottomLine.backgroundColor = lineColor
+        
         self.addSubview(bottomLine)
     }
     
-    @objc func didTapSlideBarItem(_ sender: UIButton) {
+    // fired when did tap slide bar item
+    @objc private func didTapSlideBarItem(_ sender: UIButton) {
         currentIndex = sender.tag
         isDragging = false
         animateBottomLine(to: sender.tag)
         sendActions(for: .valueChanged)
     }
     
-    func animateBottomLine(to index: Int) {
+    // move bottom line when tap slidebar item (button)
+    private func animateBottomLine(to index: Int) {
         UIView.animate(withDuration: 0.3) {
             self.bottomLine.center.x = self.centerList[index].x
         }
     }
     
+    // move bottom line when scroll view in main view is scrolling
+    // fired in "scrollViewDidScroll" function in UIScrollViewDelegate
     func moveLine(follow scrollView: UIScrollView) {
         switch scrollView.panGestureRecognizer.state {
         // began: khi dùng tay kéo scrollview
@@ -109,7 +115,8 @@ class SlideBarView: UIControl {
         }
     }
     
-    func relayoutViewTransition(size: CGSize) {
+    // relayout after implementing rotate iphone screen (in "viewWillTransition" function)
+    func relayoutViewDidTransition(size: CGSize) {
         // size: size man hinh moi khi rotate
         let itemWidth = size.width / CGFloat(numberOfItems!)
         centerList.removeAll()
@@ -125,21 +132,25 @@ class SlideBarView: UIControl {
         }
         
         bottomLine.frame = CGRect(x: CGFloat(currentIndex) * itemWidth,
-                                  y: frameList[currentIndex].maxY-lineHeight,
+                                  y: framesList[currentIndex].maxY-lineHeight,
                                   width: itemWidth,
                                   height: lineHeight)
+    }
+    
+    private func initData() {
+        titlesList = delegate?.titlesListSlideBar()
+        numberOfItems = delegate?.numberOfItemsSlideBar()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        titlesList = delegate?.titlesListSlideBar()
-        numberOfItems = delegate?.numberOfItemsSlideBar()
+        initData()
         
         if titlesList == nil && numberOfItems == nil {
             return
-        } else if btnsList.count <= 0 {
-            setupView()
+        } else if btnsList.count == 0 {
+            setupItemView()
         }
     }
 }

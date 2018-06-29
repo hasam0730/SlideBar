@@ -15,15 +15,16 @@ class ViewController: UIViewController {
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
     var currentScrollIndex: CGFloat = 0.0
     let stringList = ["title1", "title2", "title2", "title2"]
-	var portraitSize: CGSize?
+	var originScrollViewSize: CGSize?
+    var framesScrollList = [CGRect]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         secondSlideBar.delegate = self
         // Do any additional setup after loading the view, typically from a nib.
-        setupView(numberOfitems: stringList.count)
+        setupScrollView(numberOfitems: stringList.count)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -34,9 +35,23 @@ class ViewController: UIViewController {
         currentScrollIndex = CGFloat(sender.currentIndex)
     }
     
+    
     // MARK: -------------------
-    var framesScrollList = [CGRect]()
-	func setupView(numberOfitems: Int) {
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        relayoutDidTransition(size: currentScreenSize)
+        myScrollView.scrollRectToVisible(framesScrollList[Int(currentScrollIndex)], animated: false)
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        secondSlideBar.relayoutViewDidTransition(size: size)
+        currentScreenSize = size
+    }
+    
+    
+    // MARK: -------------------
+	func setupScrollView(numberOfitems: Int) {
 		myScrollView.delegate = self
 		myScrollView.bounces = false
 		let screenSize: CGSize = UIScreen.main.bounds.size
@@ -61,58 +76,33 @@ class ViewController: UIViewController {
 		myScrollView.isUserInteractionEnabled = true
         myScrollView.backgroundColor = .green
         
-        portraitSize = myScrollView.bounds.size
+        originScrollViewSize = myScrollView.bounds.size
 	}
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        relayoutWenTransition(size: currentScreenSize)
-        myScrollView.scrollRectToVisible(framesScrollList[Int(currentScrollIndex)], animated: false)
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        secondSlideBar.relayoutViewTransition(size: size)
-        
-        gettingCurrentScreenSize(size: size)
-        
-    }
-    
-    func relayoutWenTransition(size: CGSize) {
-        myScrollView.contentSize = CGSize(width: size.width * CGFloat(stringList.count),
+    func relayoutDidTransition(size: CGSize) {
+        myScrollView.contentSize = CGSize(width: size.width * CGFloat(myScrollView.subviews.count),
                                           height: size.height - myScrollView.frame.origin.y)
         framesScrollList.removeAll()
         for index in 0..<myScrollView.subviews.count {
+            
+            let x = CGFloat(index) * size.width
+            let y = myScrollView.bounds.minY
+            let w = size.width
+            var h: CGFloat = 0.0
+            
             if UIDevice.current.orientation.isLandscape {
-                let x = CGFloat(index) * size.width
-                let y = myScrollView.bounds.minY
                 // landscape
-                myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width,
-                                                            y: myScrollView.bounds.minY,
-                                                            width: size.width,
-                                                            height: ScreenSize.minLength)
-                framesScrollList.append(CGRect(x: CGFloat(index) * size.width,
-                                               y: myScrollView.bounds.minY,
-                                               width: size.width,
-                                               height: ScreenSize.minLength))
+                h = ScreenSize.minLength
             } else {
                 // portrait
-                if let uwrportaitSize = portraitSize {
-                    myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width,
-                                                                y: myScrollView.bounds.minY,
-                                                                width: size.width,
-                                                                height: uwrportaitSize.height)
-                    framesScrollList.append(CGRect(x: CGFloat(index) * size.width,
-                                                   y: myScrollView.bounds.minY,
-                                                   width: size.width,
-                                                   height: uwrportaitSize.height))
+                if let uwrOriginSize = originScrollViewSize {
+                    h = uwrOriginSize.height
                 }
             }
+            let rect = CGRect(x: x, y: y, width: w, height: h)
+            myScrollView.subviews[index].frame = rect
+            framesScrollList.append(rect)
         }
-    }
-    
-    func gettingCurrentScreenSize(size: CGSize) {
-        currentScreenSize = size
     }
 }
 
@@ -131,19 +121,13 @@ extension ViewController: UIScrollViewDelegate {
         switch scrollView.panGestureRecognizer.state {
             // began: khi dùng tay kéo scrollview
             // changed: khi đang kéo rồi buông tay ra
-            // possible: khi scrollview đang scroll dù đang dùng tay hay ko
-            case .began:
-                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
-            case .changed:
-                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
+            // possible: khi scrollview đang scroll dù đang dùng tay hay ko, kể cả khi rotate
             case .possible: break
-            default:
-                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
+            default: currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
         }
         secondSlideBar.moveLine(follow: scrollView)
 	}
 }
-
 
 
 
