@@ -35,6 +35,8 @@ class SlideBarView: UIControl {
         super.init(frame: frame)
     }
     
+    
+    
     func getRandomColor() -> UIColor {
         //Generate between 0 to 1
         let red:CGFloat = CGFloat(drand48())

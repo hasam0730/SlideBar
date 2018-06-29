@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         secondSlideBar.delegate = self
         // Do any additional setup after loading the view, typically from a nib.
-        setupView(numberOfitems: stringList.count)
+//        setupView(numberOfitems: stringList.count)
     }
 
     override func didReceiveMemoryWarning() {
@@ -28,7 +28,7 @@ class ViewController: UIViewController {
     }
 	
     @IBAction func changeValue(_ sender: SlideBarView) {
-        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
+//        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
     }
     
     // MARK: -------------------
@@ -42,7 +42,7 @@ class ViewController: UIViewController {
 			//
 			let img = UIImage(named: "\(i + 1)")
 			//
-			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height-200))
+			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height))
 			imgv.isUserInteractionEnabled = true
 			framesScrollList.append(imgv.frame)
 			imgv.image = img
@@ -53,10 +53,43 @@ class ViewController: UIViewController {
 		//
 		myScrollView.isPagingEnabled = true
 		myScrollView.isScrollEnabled = true
-		myScrollView.contentSize = CGSize(width: CGFloat(xCoodinate), height: screenSize.height-200)
+		myScrollView.contentSize = CGSize(width: CGFloat(xCoodinate), height: myScrollView.bounds.size.height)
 		//
 		myScrollView.isUserInteractionEnabled = true
+        myScrollView.backgroundColor = .green
+        
+        portraitSize = myScrollView.bounds.size
 	}
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+    
+    var portraitSize: CGSize?
+    var landscapeSize: CGSize?
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        
+        myScrollView.contentSize = CGSize(width: size.width * CGFloat(stringList.count),
+                                          height: myScrollView.bounds.size.height)
+        print("🙅‍♂️ \(myScrollView.contentSize)")
+        
+        for index in 0..<myScrollView.subviews.count {
+            if UIDevice.current.orientation.isLandscape {
+                print("👨‍🔧 \(myScrollView.frame.size)")
+                // landscape
+                myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width, y: myScrollView.bounds.minY, width: size.width, height: ScreenSize.minLength)
+            } else {
+                // portrait
+                if let uwrportaitSize = portraitSize {
+                    myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width,
+                                                                y: myScrollView.bounds.minY,
+                                                                width: size.width,
+                                                                height: uwrportaitSize.height)
+                }
+            }
+        }
+    }
 }
 
 extension ViewController: SlideBarViewDataSource {
