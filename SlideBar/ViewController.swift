@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var myScrollView: UIScrollView!
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
     var currentScrollIndex: CGFloat = 0.0
-    let stringList = ["title1", "title2", "title2", "title2"]
+    let stringList = ["title1", "title2", "title3", "title4", "title5"]
 	var originScrollViewSize: CGSize?
     var framesScrollList = [CGRect]()
     
@@ -80,7 +80,8 @@ class ViewController: UIViewController {
 	}
     
     func relayoutDidTransition(size: CGSize) {
-        myScrollView.contentSize = CGSize(width: size.width * CGFloat(myScrollView.subviews.count),
+        let subScrollViews = myScrollView.subviews.dropLast(2)
+        myScrollView.contentSize = CGSize(width: size.width * CGFloat(subScrollViews.count),
                                           height: size.height - myScrollView.frame.origin.y)
         framesScrollList.removeAll()
         for index in 0..<myScrollView.subviews.count {
