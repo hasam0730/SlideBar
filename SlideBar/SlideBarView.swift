@@ -29,13 +29,12 @@ class SlideBarView: UIControl {
     private var isDragging: Bool = false
     private(set) var currentIndex: Int = 0
     
+    private var btnsList = [UIButton]()
     weak var delegate: SlideBarViewDataSource?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
-    
-    
     
     func getRandomColor() -> UIColor {
         //Generate between 0 to 1
@@ -69,6 +68,7 @@ class SlideBarView: UIControl {
             button.setTitle(titlesList![indx], for: .normal)
             
             self.addSubview(button)
+            btnsList.append(button)
         }
         
         // add bottom line
@@ -109,6 +109,27 @@ class SlideBarView: UIControl {
         }
     }
     
+    func relayoutViewTransition(size: CGSize) {
+        // size: size man hinh moi khi rotate
+        let itemWidth = size.width / CGFloat(numberOfItems!)
+        centerList.removeAll()
+        for indx in 0..<self.subviews.count {
+            let xItem = CGFloat(indx) * (size.width / CGFloat(numberOfItems!))
+            let yItem = self.bounds.minY
+            let widthItem = itemWidth
+            let heightItem = self.subviews[indx].frame.height
+            
+            self.subviews[indx].frame = CGRect(x: xItem, y: yItem, width: widthItem, height: heightItem)
+            
+            centerList.append(self.subviews[indx].center)
+        }
+        
+        bottomLine.frame = CGRect(x: CGFloat(currentIndex) * itemWidth,
+                                  y: frameList[currentIndex].maxY-lineHeight,
+                                  width: itemWidth,
+                                  height: lineHeight)
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -117,7 +138,8 @@ class SlideBarView: UIControl {
         
         if titlesList == nil && numberOfItems == nil {
             return
+        } else if btnsList.count <= 0 {
+            setupView()
         }
-        setupView()
     }
 }

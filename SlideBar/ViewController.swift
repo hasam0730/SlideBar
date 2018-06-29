@@ -12,14 +12,16 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var secondSlideBar: SlideBarView!
     @IBOutlet weak var myScrollView: UIScrollView!
-
-    let stringList = ["title1", "title2", "title2", "title2", "title2"]
-	
+    var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
+    var currentScrollIndex: CGFloat = 0.0
+    let stringList = ["title1", "title2", "title2", "title2"]
+	var portraitSize: CGSize?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         secondSlideBar.delegate = self
         // Do any additional setup after loading the view, typically from a nib.
-//        setupView(numberOfitems: stringList.count)
+        setupView(numberOfitems: stringList.count)
     }
 
     override func didReceiveMemoryWarning() {
@@ -28,7 +30,8 @@ class ViewController: UIViewController {
     }
 	
     @IBAction func changeValue(_ sender: SlideBarView) {
-//        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
+        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
+        currentScrollIndex = CGFloat(sender.currentIndex)
     }
     
     // MARK: -------------------
@@ -63,22 +66,35 @@ class ViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+        relayoutWenTransition(size: currentScreenSize)
+        myScrollView.scrollRectToVisible(framesScrollList[Int(currentScrollIndex)], animated: false)
     }
     
-    var portraitSize: CGSize?
-    var landscapeSize: CGSize?
-    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        secondSlideBar.relayoutViewTransition(size: size)
         
+        gettingCurrentScreenSize(size: size)
+        
+    }
+    
+    func relayoutWenTransition(size: CGSize) {
         myScrollView.contentSize = CGSize(width: size.width * CGFloat(stringList.count),
-                                          height: myScrollView.bounds.size.height)
-        print("🙅‍♂️ \(myScrollView.contentSize)")
-        
+                                          height: size.height - myScrollView.frame.origin.y)
+        framesScrollList.removeAll()
         for index in 0..<myScrollView.subviews.count {
             if UIDevice.current.orientation.isLandscape {
-                print("👨‍🔧 \(myScrollView.frame.size)")
+                let x = CGFloat(index) * size.width
+                let y = myScrollView.bounds.minY
                 // landscape
-                myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width, y: myScrollView.bounds.minY, width: size.width, height: ScreenSize.minLength)
+                myScrollView.subviews[index].frame = CGRect(x: CGFloat(index) * size.width,
+                                                            y: myScrollView.bounds.minY,
+                                                            width: size.width,
+                                                            height: ScreenSize.minLength)
+                framesScrollList.append(CGRect(x: CGFloat(index) * size.width,
+                                               y: myScrollView.bounds.minY,
+                                               width: size.width,
+                                               height: ScreenSize.minLength))
             } else {
                 // portrait
                 if let uwrportaitSize = portraitSize {
@@ -86,9 +102,17 @@ class ViewController: UIViewController {
                                                                 y: myScrollView.bounds.minY,
                                                                 width: size.width,
                                                                 height: uwrportaitSize.height)
+                    framesScrollList.append(CGRect(x: CGFloat(index) * size.width,
+                                                   y: myScrollView.bounds.minY,
+                                                   width: size.width,
+                                                   height: uwrportaitSize.height))
                 }
             }
         }
+    }
+    
+    func gettingCurrentScreenSize(size: CGSize) {
+        currentScreenSize = size
     }
 }
 
@@ -104,6 +128,18 @@ extension ViewController: SlideBarViewDataSource {
 
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        switch scrollView.panGestureRecognizer.state {
+            // began: khi dùng tay kéo scrollview
+            // changed: khi đang kéo rồi buông tay ra
+            // possible: khi scrollview đang scroll dù đang dùng tay hay ko
+            case .began:
+                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
+            case .changed:
+                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
+            case .possible: break
+            default:
+                currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
+        }
         secondSlideBar.moveLine(follow: scrollView)
 	}
 }
