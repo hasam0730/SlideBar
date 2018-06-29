@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var myScrollView: UIScrollView!
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
     var currentScrollIndex: CGFloat = 0.0
-    let stringList = ["title1", "title2", "title3", "title4", "title5"]
+    let stringList = ["title1", "title2", "title3", "title4", "title5", "title6", "title7", "title8"]
 	var originScrollViewSize: CGSize?
     var framesScrollList = [CGRect]()
     
