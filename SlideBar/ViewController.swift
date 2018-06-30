@@ -123,7 +123,7 @@ extension ViewController: UIScrollViewDelegate {
 	
 	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
-		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
 }
 
