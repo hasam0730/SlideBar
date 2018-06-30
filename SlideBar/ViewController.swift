@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var myScrollView: UIScrollView!
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
     var currentScrollIndex: CGFloat = 0.0
-    let stringList = ["title1", "title2", "title3", "title4", "title5", "title6", "title7", "title8"]
+    let stringList = ["title1", "title2", "title3", "title4", "title512378"]
 	var originScrollViewSize: CGSize?
     var framesScrollList = [CGRect]()
     
@@ -60,7 +60,10 @@ class ViewController: UIViewController {
 			//
 			let img = UIImage(named: "\(i + 1)")
 			//
-			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height))
+			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate),
+												 y: 0,
+												 width: screenSize.width,
+												 height: screenSize.height))
 			imgv.isUserInteractionEnabled = true
 			framesScrollList.append(imgv.frame)
 			imgv.image = img
@@ -108,10 +111,6 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: SlideBarViewDataSource {
-    func numberOfItemsSlideBar() -> Int {
-        return stringList.count
-    }
-    
     func titlesListSlideBar() -> [String] {
         return stringList
     }
@@ -119,14 +118,12 @@ extension ViewController: SlideBarViewDataSource {
 
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        switch scrollView.panGestureRecognizer.state {
-            // began: khi dùng tay kéo scrollview
-            // changed: khi đang kéo rồi buông tay ra
-            // possible: khi scrollview đang scroll dù đang dùng tay hay ko, kể cả khi rotate
-            case .possible: break
-            default: currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
-        }
-        secondSlideBar.moveLine(follow: scrollView)
+//		secondSlideBar.moveLineConstantly(follow: scrollView)
+	}
+	
+	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
+		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
 }
 

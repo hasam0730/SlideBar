@@ -9,7 +9,6 @@
 import UIKit
 
 protocol SlideBarViewDataSource: class {
-    func numberOfItemsSlideBar() -> Int
     func titlesListSlideBar() -> [String]
 }
 
@@ -18,23 +17,36 @@ class SlideBarView: UIControl {
 
     @IBInspectable private var lineHeight: CGFloat = 1.0
     @IBInspectable private var lineColor: UIColor = UIColor.gray
-    
+    @IBInspectable private var isEqualWidth: Bool = false
+	@IBInspectable private var horizontalPadding: CGFloat = 0.0
+	
     private var titlesList: [String]? = [String]()
     private var numberOfItems: Int? = 0
-    
+    private var latestScreenSize: CGSize = UIScreen.main.bounds.size
     private var colorsList = [UIColor]()
-    private var centerList = [CGPoint]()
-    private var framesList = [CGRect]()
     private let bottomLine = UIView()
     private var isDragging: Bool = false
-    private(set) var currentIndex: Int = 0
-    
-    private var btnsList = [UIButton]()
+	private(set) var currentIndex: Int = 0
+    private var itemsList = [UIButton]()
+	private let animateDuration = 0.3
     weak var delegate: SlideBarViewDataSource?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
+	private func initData() {
+		titlesList = delegate?.titlesListSlideBar()
+		numberOfItems = titlesList?.count
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		
+		initData()
+		
+		if titlesList == nil && numberOfItems == nil {
+			return
+		} else if itemsList.count == 0 {
+			setupItemView()
+		}
+	}
     
     private func getRandomColor() -> UIColor {
         let red:CGFloat = CGFloat(drand48())
@@ -43,22 +55,14 @@ class SlideBarView: UIControl {
         
         return UIColor(red:red, green: green, blue: blue, alpha: 1.0)
     }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
+
     // setting up views of items
     private func setupItemView() {
-        self.backgroundColor = UIColor.brown
-        let widthItem = self.bounds.width/CGFloat(numberOfItems!)
-        
         for indx in 0..<numberOfItems! {
             colorsList.append(getRandomColor())
             
-            let btn = UIButton(frame: CGRect(x: CGFloat(indx) * widthItem, y: 0, width: widthItem, height: self.frame.size.height))
-            centerList.append(btn.center)
-            framesList.append(btn.frame)
+			let btn = UIButton()
+			btn.frame = frame(of: btn, at: indx)
 
             btn.backgroundColor = colorsList[indx]
             btn.tag = indx
@@ -68,19 +72,40 @@ class SlideBarView: UIControl {
             btn.setTitle(titlesList![indx], for: .normal)
             
             self.addSubview(btn)
-            btnsList.append(btn)
+			itemsList.append(btn)
         }
         
         // add bottom line
-        bottomLine.frame = CGRect(x: framesList.first!.minX,
-                                  y: framesList.first!.maxY-lineHeight,
-                                  width: framesList.first!.size.width,
+        bottomLine.frame = CGRect(x: itemsList.first!.frame.minX,
+                                  y: itemsList.first!.frame.maxY-lineHeight,
+                                  width: itemsList.first!.frame.size.width,
                                   height: lineHeight)
         
         bottomLine.backgroundColor = lineColor
         
         self.addSubview(bottomLine)
     }
+	
+	private func frame(of button: UIButton, at index: Int) -> CGRect {
+		let widthItem = self.bounds.width/CGFloat(numberOfItems!)
+		if isEqualWidth {
+			return CGRect(x: CGFloat(index) * widthItem, y: 0, width: widthItem, height: self.frame.size.height)
+		} else {
+			let fontAttributes: [NSAttributedStringKey: UIFont] = [NSAttributedStringKey.font: button.titleLabel!.font]
+			let widthText = titlesList![index].size(withAttributes: fontAttributes).width
+			
+			var xItem: CGFloat = 0.0
+			if index > 0 {
+				xItem = itemsList[index-1].frame.width + itemsList[index-1].frame.minX
+			}
+			
+			if (xItem + widthText + horizontalPadding) > UIScreen.main.bounds.width {
+				fatalError("❗️❗️❗️The length of the string exceeds the screen")
+			}
+			
+			return CGRect(origin: CGPoint(x: xItem, y: 0.0), size: CGSize(width: widthText + horizontalPadding, height: self.bounds.height))
+		}
+	}
     
     // fired when did tap slide bar item
     @objc private func didTapSlideBarItem(_ sender: UIButton) {
@@ -92,65 +117,78 @@ class SlideBarView: UIControl {
     
     // move bottom line when tap slidebar item (button)
     private func animateBottomLine(to index: Int) {
-        UIView.animate(withDuration: 0.3) {
-            self.bottomLine.center.x = self.centerList[index].x
+        UIView.animate(withDuration: animateDuration) {
+            self.bottomLine.frame.origin.x = self.itemsList[index].frame.minX
+			self.bottomLine.frame.size.width = self.itemsList[Int(index)].frame.width
         }
     }
     
     // move bottom line when scroll view in main view is scrolling
     // fired in "scrollViewDidScroll" function in UIScrollViewDelegate
-    func moveLine(follow scrollView: UIScrollView) {
-        switch scrollView.panGestureRecognizer.state {
-        // began: khi dùng tay kéo scrollview
-        // changed: khi đang kéo rồi buông tay ra
-        // possible: khi scrollview đang scroll dù đang dùng tay hay ko
-            case .began:    isDragging = true
-            case .changed:  isDragging = true
-            case .possible: break
-            default:        isDragging = true
-        }
-        
-        if isDragging == true {
-            bottomLine.frame.origin.x = scrollView.contentOffset.x/CGFloat(numberOfItems!)
-        }
+	public func moveLineConstantly(follow scrollView: UIScrollView) {
+		if isEqualWidth == true {
+			if scrollView.panGestureRecognizer.state != .possible {
+				isDragging = true
+			}
+			if isDragging == true {
+				bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
+				currentIndex = Int(scrollView.contentOffset.x / latestScreenSize.width)
+			}
+		} else {
+			fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
+		}
     }
-    
-    // relayout after implementing rotate iphone screen (in "viewWillTransition" function)
-    func relayoutViewDidTransition(size: CGSize) {
+	
+	public func moveBottomLine(to index: Int) {
+		currentIndex = index
+		animateBottomLine(to: index)
+	}
+	
+    // relayout after implementing rotate iphone ("viewWillTransition")
+    public func relayoutViewDidTransition(size: CGSize) {
+		latestScreenSize = size
         // size: size man hinh moi khi rotate
         let itemWidth = size.width / CGFloat(numberOfItems!)
-        centerList.removeAll()
-        for indx in 0..<self.subviews.count {
-            let xItem = CGFloat(indx) * (size.width / CGFloat(numberOfItems!))
-            let yItem = self.bounds.minY
-            let widthItem = itemWidth
-            let heightItem = self.subviews[indx].frame.height
-            
-            self.subviews[indx].frame = CGRect(x: xItem, y: yItem, width: widthItem, height: heightItem)
-            
-            centerList.append(self.subviews[indx].center)
+
+        for indx in 0..<numberOfItems! {
+
+			var itemFrame: CGRect!
+			if isEqualWidth {
+				itemFrame = CGRect(x: CGFloat(indx) * (size.width / CGFloat(numberOfItems!)),
+								   y: self.bounds.minY,
+								   width: itemWidth,
+								   height: self.subviews[indx].frame.height)
+			} else {
+				var xItem: CGFloat = 0.0
+				if indx > 0 {
+					xItem = itemsList[indx-1].frame.width + itemsList[indx-1].frame.minX
+				}
+				itemFrame = CGRect(x: xItem,
+								   y: self.bounds.minY,
+								   width: itemsList[indx].frame.width,
+								   height: self.subviews[indx].frame.height)
+			}
+			
+            self.subviews[indx].frame = itemFrame
         }
         
-        bottomLine.frame = CGRect(x: CGFloat(currentIndex) * itemWidth,
-                                  y: framesList[currentIndex].maxY-lineHeight,
-                                  width: itemWidth,
+        bottomLine.frame = CGRect(x: itemsList[currentIndex].frame.minX,
+                                  y: itemsList[currentIndex].frame.maxY-lineHeight,
+                                  width: itemsList[currentIndex].frame.width,
                                   height: lineHeight)
     }
-    
-    private func initData() {
-        titlesList = delegate?.titlesListSlideBar()
-        numberOfItems = delegate?.numberOfItemsSlideBar()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        initData()
-        
-        if titlesList == nil && numberOfItems == nil {
-            return
-        } else if btnsList.count == 0 {
-            setupItemView()
-        }
-    }
 }
+
+
+
+//usage:
+//extension ViewController: UIScrollViewDelegate {
+//	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//		secondSlideBar.moveLineConstantly(follow: scrollView)
+//
+//	}
+//	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//		let currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
+//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+//	}
+//}
