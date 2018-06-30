@@ -111,10 +111,6 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: SlideBarViewDataSource {
-    func numberOfItemsSlideBar() -> Int {
-        return stringList.count
-    }
-    
     func titlesListSlideBar() -> [String] {
         return stringList
     }
@@ -122,14 +118,12 @@ extension ViewController: SlideBarViewDataSource {
 
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        switch scrollView.panGestureRecognizer.state {
-            // began: khi dùng tay kéo scrollview
-            // changed: khi đang kéo rồi buông tay ra
-            // possible: khi scrollview đang scroll dù đang dùng tay hay ko, kể cả khi rotate
-            case .possible: break
-            default: currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
-        }
-		secondSlideBar.moveLine(follow: scrollView, at: currentScrollIndex)
+		secondSlideBar.moveLineConstantly(follow: scrollView)
+	}
+	
+	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+		currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
+//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
 }
 

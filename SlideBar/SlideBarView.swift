@@ -9,7 +9,6 @@
 import UIKit
 
 protocol SlideBarViewDataSource: class {
-    func numberOfItemsSlideBar() -> Int
     func titlesListSlideBar() -> [String]
 }
 
@@ -23,26 +22,31 @@ class SlideBarView: UIControl {
 	
     private var titlesList: [String]? = [String]()
     private var numberOfItems: Int? = 0
-    
+    private var latestScreenSize: CGSize = UIScreen.main.bounds.size
     private var colorsList = [UIColor]()
     private let bottomLine = UIView()
     private var isDragging: Bool = false
-	private(set) var currentIndex: Int = 0 {
-		didSet {
-			print("❇️ \(currentIndex)")
-		}
-	}
+	private(set) var currentIndex: Int = 0
     private var itemsList = [UIButton]()
-	private let animateDuration = 0.28
+	private let animateDuration = 0.3
     weak var delegate: SlideBarViewDataSource?
 
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
+	private func initData() {
+		titlesList = delegate?.titlesListSlideBar()
+		numberOfItems = titlesList?.count
 	}
 	
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		
+		initData()
+		
+		if titlesList == nil && numberOfItems == nil {
+			return
+		} else if itemsList.count == 0 {
+			setupItemView()
+		}
+	}
     
     private func getRandomColor() -> UIColor {
         let red:CGFloat = CGFloat(drand48())
@@ -121,33 +125,28 @@ class SlideBarView: UIControl {
     
     // move bottom line when scroll view in main view is scrolling
     // fired in "scrollViewDidScroll" function in UIScrollViewDelegate
-	func moveLine(follow scrollView: UIScrollView, at index: CGFloat) {
-		currentIndex = Int(index)
-        switch scrollView.panGestureRecognizer.state {
-        // began: khi dùng tay kéo scrollview
-        // changed: khi đang kéo rồi buông tay ra
-        // possible: khi scrollview đang scroll dù đang dùng tay hay ko
-            // case .began:    isDragging = true
-            // case .changed:  isDragging = true
-            case .possible: break
-            default:        isDragging = true
-        }
-        
-        if isDragging == true {
-			frameBottomLine(at: Int(index), on: scrollView)
-        }
+	public func moveLineConstantly(follow scrollView: UIScrollView) {
+		if isEqualWidth == true {
+//			switch scrollView.panGestureRecognizer.state {
+//				case .possible: break
+//				default:        isDragging = true
+//			}
+			bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
+			currentIndex = Int(scrollView.contentOffset.x / latestScreenSize.width)
+		} else {
+			fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
+		}
+		
     }
 	
-	private func frameBottomLine(at index: Int, on scrollView: UIScrollView) {
-		if isEqualWidth {
-			bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
-		} else {
-			animateBottomLine(to: index)
-		}
+	public func moveBottomLine(to index: Int) {
+		currentIndex = index
+		animateBottomLine(to: index)
 	}
 	
-    // relayout after implementing rotate iphone screen (in "viewWillTransition" function)
-    func relayoutViewDidTransition(size: CGSize) {
+    // relayout after implementing rotate iphone ("viewWillTransition")
+    public func relayoutViewDidTransition(size: CGSize) {
+		latestScreenSize = size
         // size: size man hinh moi khi rotate
         let itemWidth = size.width / CGFloat(numberOfItems!)
 
@@ -178,21 +177,18 @@ class SlideBarView: UIControl {
                                   width: itemsList[currentIndex].frame.width,
                                   height: lineHeight)
     }
-    
-    private func initData() {
-        titlesList = delegate?.titlesListSlideBar()
-        numberOfItems = delegate?.numberOfItemsSlideBar()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        initData()
-        
-        if titlesList == nil && numberOfItems == nil {
-            return
-        } else if itemsList.count == 0 {
-            setupItemView()
-        }
-    }
 }
+
+
+
+//usage:
+//extension ViewController: UIScrollViewDelegate {
+//	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//		secondSlideBar.moveLineConstantly(follow: scrollView)
+//
+//	}
+//	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//		let currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
+//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+//	}
+//}
