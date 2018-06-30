@@ -118,12 +118,12 @@ extension ViewController: SlideBarViewDataSource {
 
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-		secondSlideBar.moveLineConstantly(follow: scrollView)
+//		secondSlideBar.moveLineConstantly(follow: scrollView)
 	}
 	
 	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
-//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
 }
 

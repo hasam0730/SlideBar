@@ -37,7 +37,7 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="numberOfItems">
                                         <integer key="value" value="4"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isEqualWidth" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isEqualWidth" value="NO"/>
                                     <userDefinedRuntimeAttribute type="number" keyPath="horizontalPadding">
                                         <real key="value" value="10"/>
                                     </userDefinedRuntimeAttribute>

@@ -127,16 +127,16 @@ class SlideBarView: UIControl {
     // fired in "scrollViewDidScroll" function in UIScrollViewDelegate
 	public func moveLineConstantly(follow scrollView: UIScrollView) {
 		if isEqualWidth == true {
-//			switch scrollView.panGestureRecognizer.state {
-//				case .possible: break
-//				default:        isDragging = true
-//			}
-			bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
-			currentIndex = Int(scrollView.contentOffset.x / latestScreenSize.width)
+			if scrollView.panGestureRecognizer.state != .possible {
+				isDragging = true
+			}
+			if isDragging == true {
+				bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
+				currentIndex = Int(scrollView.contentOffset.x / latestScreenSize.width)
+			}
 		} else {
 			fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
 		}
-		
     }
 	
 	public func moveBottomLine(to index: Int) {
