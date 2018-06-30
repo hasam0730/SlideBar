@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var myScrollView: UIScrollView!
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
     var currentScrollIndex: CGFloat = 0.0
-    let stringList = ["title1", "title2", "title3", "title4", "title5", "title6", "title7", "title8"]
+    let stringList = ["title1", "title2", "title3", "title4", "title512378"]
 	var originScrollViewSize: CGSize?
     var framesScrollList = [CGRect]()
     
@@ -60,7 +60,10 @@ class ViewController: UIViewController {
 			//
 			let img = UIImage(named: "\(i + 1)")
 			//
-			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height))
+			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate),
+												 y: 0,
+												 width: screenSize.width,
+												 height: screenSize.height))
 			imgv.isUserInteractionEnabled = true
 			framesScrollList.append(imgv.frame)
 			imgv.image = img
@@ -126,7 +129,7 @@ extension ViewController: UIScrollViewDelegate {
             case .possible: break
             default: currentScrollIndex = round(scrollView.contentOffset.x / currentScreenSize.width)
         }
-        secondSlideBar.moveLine(follow: scrollView)
+		secondSlideBar.moveLine(follow: scrollView, at: currentScrollIndex)
 	}
 }
 
