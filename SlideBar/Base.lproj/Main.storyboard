@@ -39,7 +39,7 @@
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="isEqualWidth" value="YES"/>
                                     <userDefinedRuntimeAttribute type="number" keyPath="horizontalPadding">
-                                        <real key="value" value="10"/>
+                                        <real key="value" value="20"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>

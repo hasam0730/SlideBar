@@ -20,8 +20,8 @@ class SlideBarView: UIControl {
     @IBInspectable private var isEqualWidth: Bool = false
 	@IBInspectable private var horizontalPadding: CGFloat = 0.0
 	
-    private var titlesList: [String]? = [String]()
-    private var numberOfItems: Int? = 0
+    private var titlesList: [String]?
+    private var numberOfItems: Int?
     private var latestScreenSize: CGSize = UIScreen.main.bounds.size
     private var colorsList = [UIColor]()
     private let bottomLine = UIView()
@@ -30,7 +30,7 @@ class SlideBarView: UIControl {
     private var itemsList = [UIButton]()
 	private let animateDuration = 0.3
     weak var delegate: SlideBarViewDataSource?
-
+	
 	private func initData() {
 		titlesList = delegate?.titlesListSlideBar()
 		numberOfItems = titlesList?.count
@@ -39,13 +39,14 @@ class SlideBarView: UIControl {
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		
-		initData()
-		
-		if titlesList == nil && numberOfItems == nil {
-			return
-		} else if itemsList.count == 0 {
+		if titlesList == nil || numberOfItems == nil {
+			initData()
 			setupItemView()
+		} else {
+			relayoutViewDidTransition(size: frame.size)
 		}
+		print("🅾️\(frame.size.width)")
+		print("💯\(UIDevice.current.orientation.isLandscape)")
 	}
     
     private func getRandomColor() -> UIColor {
@@ -177,6 +178,8 @@ class SlideBarView: UIControl {
                                   width: itemsList[currentIndex].frame.width,
                                   height: lineHeight)
     }
+	
+	
 }
 
 

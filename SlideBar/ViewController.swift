@@ -45,7 +45,7 @@ class ViewController: UIViewController {
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        secondSlideBar.relayoutViewDidTransition(size: size)
+//        secondSlideBar.relayoutViewDidTransition(size: size)
         currentScreenSize = size
     }
     
@@ -118,7 +118,7 @@ extension ViewController: SlideBarViewDataSource {
 
 extension ViewController: UIScrollViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//		secondSlideBar.moveLineConstantly(follow: scrollView)
+		secondSlideBar.moveLineConstantly(follow: scrollView)
 	}
 	
 	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
