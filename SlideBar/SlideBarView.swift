@@ -2,7 +2,7 @@
 //  SlideBarView.swift
 //  SlideBar
 //
-//  Created by hieu nguyen on 6/28/18.
+//  Created by Hasam
 //  Copyright © 2018 hieu nguyen. All rights reserved.
 //
 
@@ -10,6 +10,10 @@ import UIKit
 
 protocol SlideBarViewDataSource: class {
     func titlesListSlideBar() -> [String]
+}
+
+protocol SlideBarViewDelegate: class {
+	func didSelectSlideBar(at index: Int)
 }
 
 @IBDesignable
@@ -26,13 +30,15 @@ class SlideBarView: UIControl {
     private var colorsList = [UIColor]()
     private let bottomLine = UIView()
     private var isDragging: Bool = false
-	private(set) var currentIndex: Int = 0
+	private var currentIndex: Int = 0
     private var itemsList = [UIButton]()
 	private let animateDuration = 0.3
-    weak var delegate: SlideBarViewDataSource?
+	
+    weak var datasource: SlideBarViewDataSource?
+	weak var delegate: SlideBarViewDelegate?
 	
 	private func initData() {
-		titlesList = delegate?.titlesListSlideBar()
+		titlesList = datasource?.titlesListSlideBar()
 		numberOfItems = titlesList?.count
 	}
 	
@@ -42,11 +48,7 @@ class SlideBarView: UIControl {
 		if titlesList == nil || numberOfItems == nil {
 			initData()
 			setupItemView()
-		} else {
-			relayoutViewDidTransition(size: frame.size)
 		}
-		print("🅾️\(frame.size.width)")
-		print("💯\(UIDevice.current.orientation.isLandscape)")
 	}
     
     private func getRandomColor() -> UIColor {
@@ -113,7 +115,8 @@ class SlideBarView: UIControl {
         currentIndex = sender.tag
         isDragging = false
         animateBottomLine(to: sender.tag)
-        sendActions(for: .valueChanged)
+        // sendActions(for: .valueChanged)
+		delegate?.didSelectSlideBar(at: currentIndex)
     }
     
     // move bottom line when tap slidebar item (button)

@@ -11,119 +11,76 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var secondSlideBar: SlideBarView!
-    @IBOutlet weak var myScrollView: UIScrollView!
+    @IBOutlet weak var myScrollView: PageScrollView!
     var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
-    var currentScrollIndex: CGFloat = 0.0
     let stringList = ["title1", "title2", "title3", "title4", "title512378"]
-	var originScrollViewSize: CGSize?
-    var framesScrollList = [CGRect]()
-    
+	var currentScrollIndex: Int = 0
+	
     override func viewDidLoad() {
         super.viewDidLoad()
-        secondSlideBar.delegate = self
-        // Do any additional setup after loading the view, typically from a nib.
-        setupScrollView(numberOfitems: stringList.count)
+		
+        secondSlideBar.datasource = self
+		secondSlideBar.delegate = self
+		
+		myScrollView.datasource = self
+		myScrollView.delegate = self
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-	
-    @IBAction func changeValue(_ sender: SlideBarView) {
-        myScrollView.scrollRectToVisible(framesScrollList[sender.currentIndex], animated: true)
-        currentScrollIndex = CGFloat(sender.currentIndex)
     }
     
     
     // MARK: -------------------
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        relayoutDidTransition(size: currentScreenSize)
-        myScrollView.scrollRectToVisible(framesScrollList[Int(currentScrollIndex)], animated: false)
+
+		myScrollView.scrollTo(index: Int(currentScrollIndex))
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-//        secondSlideBar.relayoutViewDidTransition(size: size)
+        secondSlideBar.relayoutViewDidTransition(size: size)
+		myScrollView.relayoutDidTransition(size: size)
+		
         currentScreenSize = size
-    }
-    
-    
-    // MARK: -------------------
-	func setupScrollView(numberOfitems: Int) {
-		myScrollView.delegate = self
-		myScrollView.bounces = false
-		let screenSize: CGSize = UIScreen.main.bounds.size
-		var xCoodinate: Int = 0
-		for i in 0..<stringList.count {
-			//
-			let img = UIImage(named: "\(i + 1)")
-			//
-			let imgv = UIImageView(frame: CGRect(x: CGFloat(xCoodinate),
-												 y: 0,
-												 width: screenSize.width,
-												 height: screenSize.height))
-			imgv.isUserInteractionEnabled = true
-			framesScrollList.append(imgv.frame)
-			imgv.image = img
-			//
-			myScrollView.addSubview(imgv)
-			xCoodinate += Int(screenSize.width)
-		}
-		//
-		myScrollView.isPagingEnabled = true
-		myScrollView.isScrollEnabled = true
-		myScrollView.contentSize = CGSize(width: CGFloat(xCoodinate), height: myScrollView.bounds.size.height)
-		//
-		myScrollView.isUserInteractionEnabled = true
-        myScrollView.backgroundColor = .green
-        
-        originScrollViewSize = myScrollView.bounds.size
-	}
-    
-    func relayoutDidTransition(size: CGSize) {
-        let subScrollViews = myScrollView.subviews.dropLast(2)
-        myScrollView.contentSize = CGSize(width: size.width * CGFloat(subScrollViews.count),
-                                          height: size.height - myScrollView.frame.origin.y)
-        framesScrollList.removeAll()
-        for index in 0..<myScrollView.subviews.count {
-            
-            let x = CGFloat(index) * size.width
-            let y = myScrollView.bounds.minY
-            let w = size.width
-            var h: CGFloat = 0.0
-            
-            if UIDevice.current.orientation.isLandscape {
-                // landscape
-                h = ScreenSize.minLength
-            } else {
-                // portrait
-                if let uwrOriginSize = originScrollViewSize {
-                    h = uwrOriginSize.height
-                }
-            }
-            let rect = CGRect(x: x, y: y, width: w, height: h)
-            myScrollView.subviews[index].frame = rect
-            framesScrollList.append(rect)
-        }
     }
 }
 
-extension ViewController: SlideBarViewDataSource {
+extension ViewController: SlideBarViewDataSource, SlideBarViewDelegate {
+	func didSelectSlideBar(at index: Int) {
+		currentScrollIndex = index
+		myScrollView.scrollTo(index: index)
+	}
+	
     func titlesListSlideBar() -> [String] {
         return stringList
     }
 }
 
-extension ViewController: UIScrollViewDelegate {
+extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
+	func numberOfSubView() -> Int {
+		return 0
+	}
+	
+	func viewForPage() -> UIView {
+		return UIView()
+	}
+	
+	func registerPageViews() -> [UIImageView] {
+		return [UIImageView(image: UIImage(named: "1")),
+				UIImageView(image: UIImage(named: "2")),
+				UIImageView(image: UIImage(named: "3")),
+				UIImageView(image: UIImage(named: "4")),
+				UIImageView(image: UIImage(named: "5"))]
+	}
+	
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-		secondSlideBar.moveLineConstantly(follow: scrollView)
+//		secondSlideBar.moveLineConstantly(follow: scrollView)
 	}
 	
 	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-		currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
-//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+		currentScrollIndex = Int(scrollView.contentOffset.x / currentScreenSize.width)
+		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
 }
 
