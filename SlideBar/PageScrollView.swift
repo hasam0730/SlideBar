@@ -9,40 +9,39 @@
 import UIKit
 
 protocol PageScrollViewDatasource: class {
-	func registerPageViews() -> [UIImageView]
 	func numberOfSubView() -> Int
-	func viewForPage() -> UIView
+	func viewForPage(at index: Int) -> UIView
 }
 
 class PageScrollView: UIScrollView {
 	weak var datasource: PageScrollViewDatasource?
-	private var subVCList: [UIImageView]?
-	var framesScrollList = [CGRect]()
-	var currentScrollIndex: Int = 0
-	var originScrollViewSize: CGSize?
+	private var framesScrollList = [CGRect]()
+	private var currentScrollIndex: Int = 0
+//	private var originScrollViewSize: CGSize?
+	private var numbOfPageViews: Int?
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		
-		if subVCList == nil {
-			subVCList = datasource?.registerPageViews()
+		if numbOfPageViews == nil {
+			numbOfPageViews = datasource?.numberOfSubView()
 			setupSubViews()
 		} else {
 			return
 		}
 	}
 	
-	func setupSubViews() {
+	private func setupSubViews() {
 		self.bounces = false
 		framesScrollList.removeAll()
 		let screenSize: CGSize = UIScreen.main.bounds.size
 		var xCoodinate: Int = 0
-		for i in 0..<subVCList!.count {
-			let imgv = subVCList![i]
-			imgv.frame = CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height)
+		for indx in 0..<numbOfPageViews! {
+			guard let subView = datasource?.viewForPage(at: indx) else { fatalError("‼️ Init view fail") }
+			subView.frame = CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height)
 			//
-			self.addSubview(imgv)
-			framesScrollList.append(imgv.frame)
+			self.addSubview(subView)
+			framesScrollList.append(subView.frame)
 			xCoodinate += Int(screenSize.width)
 		}
 		//
@@ -53,7 +52,7 @@ class PageScrollView: UIScrollView {
 		self.isUserInteractionEnabled = true
 		self.backgroundColor = .green
 
-		originScrollViewSize = self.bounds.size
+//		originScrollViewSize = self.bounds.size
 	}
 
 	func relayoutDidTransition(size: CGSize) {
@@ -70,12 +69,13 @@ class PageScrollView: UIScrollView {
 
 			if UIDevice.current.orientation.isLandscape {
 				// landscape
-				h = ScreenSize.minLength
+				h = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
 			} else {
 				// portrait
-				if let uwrOriginSize = originScrollViewSize {
-					h = uwrOriginSize.height
-				}
+//				if let uwrOriginSize = originScrollViewSize {
+//					h = uwrOriginSize.height
+//				}
+				h = self.contentSize.height
 			}
 			let rect = CGRect(x: x, y: y, width: w, height: h)
 			self.subviews[index].frame = rect

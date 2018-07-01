@@ -12,9 +12,11 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var secondSlideBar: SlideBarView!
     @IBOutlet weak var myScrollView: PageScrollView!
-    var currentScreenSize: CGSize = CGSize(width: ScreenSize.width, height: ScreenSize.height)
+	
+    var currentScreenSize: CGSize = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
     let stringList = ["title1", "title2", "title3", "title4", "title512378"]
 	var currentScrollIndex: Int = 0
+	let arr = [UIColor.black, UIColor.blue, UIColor.yellow, UIColor.cyan, UIColor.green, UIColor.orange]
 	
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +46,7 @@ class ViewController: UIViewController {
 		
         currentScreenSize = size
     }
+
 }
 
 extension ViewController: SlideBarViewDataSource, SlideBarViewDelegate {
@@ -58,20 +61,14 @@ extension ViewController: SlideBarViewDataSource, SlideBarViewDelegate {
 }
 
 extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
+	func viewForPage(at index: Int) -> UIView {
+		let view = UIView()
+		view.backgroundColor = arr[index]
+		return view
+	}
+	
 	func numberOfSubView() -> Int {
-		return 0
-	}
-	
-	func viewForPage() -> UIView {
-		return UIView()
-	}
-	
-	func registerPageViews() -> [UIImageView] {
-		return [UIImageView(image: UIImage(named: "1")),
-				UIImageView(image: UIImage(named: "2")),
-				UIImageView(image: UIImage(named: "3")),
-				UIImageView(image: UIImage(named: "4")),
-				UIImageView(image: UIImage(named: "5"))]
+		return stringList.count
 	}
 	
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -82,20 +79,4 @@ extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
 		currentScrollIndex = Int(scrollView.contentOffset.x / currentScreenSize.width)
 		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
 	}
-}
-
-
-
-
-
-
-
-
-
-
-struct ScreenSize {
-    static let width         = UIScreen.main.bounds.size.width
-    static let height        = UIScreen.main.bounds.size.height
-    static let maxLength     = max(ScreenSize.width, ScreenSize.height)
-    static let minLength     = min(ScreenSize.width, ScreenSize.height)
 }
