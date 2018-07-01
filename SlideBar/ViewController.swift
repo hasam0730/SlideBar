@@ -72,11 +72,11 @@ extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
 	}
 	
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//		secondSlideBar.moveLineConstantly(follow: scrollView)
+		secondSlideBar.scrollToMoveBottomLine(by: scrollView)
 	}
 	
 	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		currentScrollIndex = Int(scrollView.contentOffset.x / currentScreenSize.width)
-		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
+		secondSlideBar.scrollToMoveBottomLine(by: scrollView, to: currentScrollIndex)
 	}
 }

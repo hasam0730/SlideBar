@@ -17,7 +17,6 @@ class PageScrollView: UIScrollView {
 	weak var datasource: PageScrollViewDatasource?
 	private var framesScrollList = [CGRect]()
 	private var currentScrollIndex: Int = 0
-//	private var originScrollViewSize: CGSize?
 	private var numbOfPageViews: Int?
 	
 	override func layoutSubviews() {
@@ -51,8 +50,6 @@ class PageScrollView: UIScrollView {
 		//
 		self.isUserInteractionEnabled = true
 		self.backgroundColor = .green
-
-//		originScrollViewSize = self.bounds.size
 	}
 
 	func relayoutDidTransition(size: CGSize) {
@@ -72,9 +69,6 @@ class PageScrollView: UIScrollView {
 				h = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
 			} else {
 				// portrait
-//				if let uwrOriginSize = originScrollViewSize {
-//					h = uwrOriginSize.height
-//				}
 				h = self.contentSize.height
 			}
 			let rect = CGRect(x: x, y: y, width: w, height: h)
@@ -90,3 +84,19 @@ class PageScrollView: UIScrollView {
 		self.scrollRectToVisible(framesScrollList[index], animated: true)
 	}
 }
+
+//usage:
+//MARK: adjust rect visible of scroll view when rotate screen
+//override func viewDidLayoutSubviews() {
+//	super.viewDidLayoutSubviews()
+//
+//	myScrollView.scrollTo(index: Int(currentScrollIndex))
+//}
+
+//MARK: adjust content size of scroll view when rotate screen
+//override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//	secondSlideBar.relayoutViewDidTransition(size: size)
+//	myScrollView.relayoutDidTransition(size: size)
+//
+//	currentScreenSize = size
+//}

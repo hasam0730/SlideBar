@@ -16,13 +16,15 @@ protocol SlideBarViewDelegate: class {
 	func didSelectSlideBar(at index: Int)
 }
 
-@IBDesignable
 class SlideBarView: UIControl {
 
     @IBInspectable private var lineHeight: CGFloat = 1.0
     @IBInspectable private var lineColor: UIColor = UIColor.gray
     @IBInspectable private var isEqualWidth: Bool = false
 	@IBInspectable private var horizontalPadding: CGFloat = 0.0
+	@IBInspectable private var fontSize: CGFloat = 17.0
+	@IBInspectable private var fontWeight: UIFont.Weight = .light
+	@IBInspectable private var textColor: UIColor = .black
 	
     private var titlesList: [String]?
     private var numberOfItems: Int?
@@ -55,7 +57,7 @@ class SlideBarView: UIControl {
         let red:CGFloat = CGFloat(drand48())
         let green:CGFloat = CGFloat(drand48())
         let blue:CGFloat = CGFloat(drand48())
-        
+
         return UIColor(red:red, green: green, blue: blue, alpha: 1.0)
     }
 
@@ -65,6 +67,10 @@ class SlideBarView: UIControl {
             colorsList.append(getRandomColor())
             
 			let btn = UIButton()
+			btn.setAttributedTitle(NSAttributedString(string: titlesList![indx],
+													  attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: fontSize,
+																												 weight: fontWeight)]), for: .normal)
+			
 			btn.frame = frame(of: btn, at: indx)
 
             btn.backgroundColor = colorsList[indx]
@@ -126,10 +132,15 @@ class SlideBarView: UIControl {
 			self.bottomLine.frame.size.width = self.itemsList[Int(index)].frame.width
         }
     }
-    
+	
+	private func moveBottomLineWhenScrolling(to index: Int) {
+		currentIndex = index
+		animateBottomLine(to: index)
+	}
+	
     // move bottom line when scroll view in main view is scrolling
     // fired in "scrollViewDidScroll" function in UIScrollViewDelegate
-	public func moveLineConstantly(follow scrollView: UIScrollView) {
+	public func scrollToMoveBottomLine(by scrollView: UIScrollView, to index: Int? = nil) {
 		if isEqualWidth == true {
 			if scrollView.panGestureRecognizer.state != .possible {
 				isDragging = true
@@ -138,15 +149,12 @@ class SlideBarView: UIControl {
 				bottomLine.frame.origin.x = scrollView.contentOffset.x / CGFloat(numberOfItems!)
 				currentIndex = Int(scrollView.contentOffset.x / latestScreenSize.width)
 			}
-		} else {
-			fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
+		} else if let indx = index {
+			moveBottomLineWhenScrolling(to: indx)
+			// fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
 		}
     }
-	
-	public func moveBottomLine(to index: Int) {
-		currentIndex = index
-		animateBottomLine(to: index)
-	}
+
 	
     // relayout after implementing rotate iphone ("viewWillTransition")
     public func relayoutViewDidTransition(size: CGSize) {
@@ -188,13 +196,20 @@ class SlideBarView: UIControl {
 
 
 //usage:
-//extension ViewController: UIScrollViewDelegate {
-//	func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//		secondSlideBar.moveLineConstantly(follow: scrollView)
+//MARK: move bottom line and set current index when scrolling
+//func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//	secondSlideBar.scrollToMoveBottomLine(by: scrollView)
+//}
 //
-//	}
-//	func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//		let currentScrollIndex = scrollView.contentOffset.x / currentScreenSize.width
-//		secondSlideBar.moveBottomLine(to: Int(currentScrollIndex))
-//	}
+//func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//	currentScrollIndex = Int(scrollView.contentOffset.x / currentScreenSize.width)
+//	secondSlideBar.scrollToMoveBottomLine(by: scrollView, to: currentScrollIndex)
+//}
+
+//MARK: relayout slidebar when rotate screen
+//override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//	secondSlideBar.relayoutViewDidTransition(size: size)
+//	myScrollView.relayoutDidTransition(size: size)
+//
+//	currentScreenSize = size
 //}
