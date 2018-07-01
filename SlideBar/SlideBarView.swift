@@ -189,8 +189,6 @@ class SlideBarView: UIControl {
                                   width: itemsList[currentIndex].frame.width,
                                   height: lineHeight)
     }
-	
-	
 }
 
 

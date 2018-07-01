@@ -62,9 +62,9 @@ extension ViewController: SlideBarViewDataSource, SlideBarViewDelegate {
 
 extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
 	func viewForPage(at index: Int) -> UIView {
-		let view = UIView()
-		view.backgroundColor = arr[index]
-		return view
+		let vc = SomethingViewController(nibName: "SomethingViewController", bundle: nil)
+		vc.view.backgroundColor = arr[index]
+		return vc.view
 	}
 	
 	func numberOfSubView() -> Int {
