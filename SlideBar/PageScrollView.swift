@@ -18,6 +18,7 @@ class PageScrollView: UIScrollView {
 	private var framesScrollList = [CGRect]()
 	private var currentScrollIndex: Int = 0
 	private var numbOfPageViews: Int?
+	private let heightSafeArea: CGFloat = 20.0
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
@@ -37,7 +38,7 @@ class PageScrollView: UIScrollView {
 		var xCoodinate: Int = 0
 		for indx in 0..<numbOfPageViews! {
 			guard let subView = datasource?.viewForPage(at: indx) else { fatalError("‼️ Init view fail") }
-			subView.frame = CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height-frame.origin.y)
+			subView.frame = CGRect(x: CGFloat(xCoodinate), y: 0, width: screenSize.width, height: screenSize.height-frame.minY)
 			//
 			self.addSubview(subView)
 			framesScrollList.append(subView.frame)
@@ -66,7 +67,7 @@ class PageScrollView: UIScrollView {
 
 			if UIDevice.current.orientation.isLandscape {
 				// landscape
-				h = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+				h = self.contentSize.height+heightSafeArea*2
 			} else {
 				// portrait
 				h = self.contentSize.height

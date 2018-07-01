@@ -23,9 +23,9 @@ class SlideBarView: UIControl {
     @IBInspectable private var isEqualWidth: Bool = false
 	@IBInspectable private var horizontalPadding: CGFloat = 0.0
 	@IBInspectable private var fontSize: CGFloat = 17.0
-	@IBInspectable private var fontWeight: UIFont.Weight = .light
 	@IBInspectable private var textColor: UIColor = .black
 	
+	private var fontWeight: UIFont.Weight = .light
     private var titlesList: [String]?
     private var numberOfItems: Int?
     private var latestScreenSize: CGSize = UIScreen.main.bounds.size
@@ -151,7 +151,6 @@ class SlideBarView: UIControl {
 			}
 		} else if let indx = index {
 			moveBottomLineWhenScrolling(to: indx)
-			// fatalError("‼️Only use this function in EqualWidth mode. Set isEqualWidth in attribute inspector to 'Off' or use function 'moveBottomLine(to index: Int)' instead")
 		}
     }
 

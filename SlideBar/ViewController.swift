@@ -32,7 +32,10 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-    
+	@IBAction func didTouchMe(_ sender: UIButton) {
+		print("❇️ you touch me")
+	}
+	
     // MARK: -------------------
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -62,9 +65,9 @@ extension ViewController: SlideBarViewDataSource, SlideBarViewDelegate {
 
 extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
 	func viewForPage(at index: Int) -> UIView {
-		let vc = SomethingViewController(nibName: "SomethingViewController", bundle: nil)
-		vc.view.backgroundColor = arr[index]
-		return vc.view
+		let vc = Bundle.main.loadNibNamed("TheFirstView", owner: nil, options: nil)?.first as! UIView
+		vc.backgroundColor = arr[index]
+		return vc
 	}
 	
 	func numberOfSubView() -> Int {
@@ -80,3 +83,7 @@ extension ViewController: UIScrollViewDelegate, PageScrollViewDatasource {
 		secondSlideBar.scrollToMoveBottomLine(by: scrollView, to: currentScrollIndex)
 	}
 }
+
+
+
+
