@@ -18,7 +18,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pba-n0-YgG">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pba-n0-YgG" customClass="PageScrollView" customModule="SlideBar" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="65" width="375" height="602"/>
                             </scrollView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f0F-3x-HR1" customClass="SlideBarView" customModule="SlideBar" customModuleProvider="target">
@@ -29,7 +29,7 @@
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="color" keyPath="lineColor">
-                                        <color key="value" white="0.05828683036" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="value" red="0.94168385152284262" green="0.55568855327021482" blue="0.47238658094504526" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="lineHeight">
                                         <real key="value" value="3"/>
@@ -37,14 +37,17 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="numberOfItems">
                                         <integer key="value" value="4"/>
                                     </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isEqualWidth" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isEqualWidth" value="NO"/>
                                     <userDefinedRuntimeAttribute type="number" keyPath="horizontalPadding">
-                                        <real key="value" value="10"/>
+                                        <real key="value" value="20"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                        <color key="value" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="fontSize">
+                                        <real key="value" value="15"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="changeValue:" destination="BYZ-38-t0r" eventType="valueChanged" id="okb-Xq-8K6"/>
-                                </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -60,13 +63,13 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="myScrollView" destination="pba-n0-YgG" id="isf-Aw-o4N"/>
+                        <outlet property="myScrollView" destination="pba-n0-YgG" id="Z9v-Ks-4NY"/>
                         <outlet property="secondSlideBar" destination="f0F-3x-HR1" id="ccw-id-hCj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2438" y="-655"/>
+            <point key="canvasLocation" x="-6369" y="-737"/>
         </scene>
     </scenes>
 </document>
